@@ -44,6 +44,10 @@ const FileReviewIdPage = ({ params }: { params: { fileId: string } }) => {
     return null
   }
 
+  if (file && file.userEmail !== user.primaryEmailAddress?.emailAddress) {
+    return null
+  }
+
   const onPasswordSave = async (password: string) => {
     const docRef = doc(db, 'uploadedFile', params.fileId)
     await updateDoc(docRef, { password: password })

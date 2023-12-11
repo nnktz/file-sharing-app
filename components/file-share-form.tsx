@@ -1,8 +1,8 @@
 'use client'
 
 import toast from 'react-hot-toast'
-import { useState } from 'react'
-import { Copy } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Copy, CopyCheck } from 'lucide-react'
 import type { UserResource } from '@clerk/types'
 import { DocumentData } from 'firebase/firestore'
 
@@ -20,6 +20,7 @@ export const FileShareForm = ({ file, onPasswordSave, user }: FileShareFormProps
   const [email, setEmail] = useState('')
   const [sending, setSending] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [copying, setCopying] = useState(false)
 
   const handleSendEmail = async () => {
     const data = {
@@ -46,6 +47,20 @@ export const FileShareForm = ({ file, onPasswordSave, user }: FileShareFormProps
       })
   }
 
+  useEffect(() => {
+    if (copying === true) {
+      setTimeout(() => {
+        setCopying(false)
+      }, 2000)
+    }
+  }, [copying])
+
+  const onCopy = () => {
+    setCopying(true)
+    navigator.clipboard.writeText(file.shortUrl)
+    toast.success('Copied short url successfully')
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <div>
@@ -61,7 +76,11 @@ export const FileShareForm = ({ file, onPasswordSave, user }: FileShareFormProps
             className="w-full bg-transparent outline-none disabled:text-gray-500"
           />
 
-          <Copy className="cursor-pointer text-gray-400 hover:text-gray-600" />
+          {!copying ? (
+            <Copy className="cursor-pointer text-gray-400 hover:text-gray-600" onClick={onCopy} />
+          ) : (
+            <CopyCheck className="text-primary" />
+          )}
         </div>
       </div>
 
