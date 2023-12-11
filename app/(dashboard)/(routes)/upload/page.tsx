@@ -18,7 +18,6 @@ const UploadPage = () => {
 
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [fileDocId, setFileDocId] = useState('')
 
   const storage = getStorage(app)
   const db = getFirestore(app)
@@ -41,7 +40,6 @@ const UploadPage = () => {
       (snapshot) => {
         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
         const progressTask = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        console.log('Upload is ' + progressTask + '% done')
         setProgress(progressTask)
       },
       (error) => {
@@ -54,10 +52,6 @@ const UploadPage = () => {
         // For instance, get the download URL: https://firebasestorage.googleapis.com/...
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           onSave(file, downloadURL)
-          console.log('File available at', downloadURL)
-          setTimeout(() => {
-            router.push(`/file-review/${fileDocId}`)
-          }, 1000)
         })
         toast.success('Uploaded file successfully')
         setUploading(false)
@@ -69,7 +63,7 @@ const UploadPage = () => {
     const docId = generateRandomString().toString()
 
     await setDoc(doc(db, 'uploadedFile', docId), {
-      filename: file.name,
+      fileName: file.name,
       fileSize: file.size,
       fileType: file.type,
       fileUrl: fileUrl,
@@ -77,10 +71,12 @@ const UploadPage = () => {
       userName: user.fullName,
       password: '',
       id: docId,
-      shortUrl: `${process.env.NEXT_PUBLIC_SERVER_URL}/${docId}`,
+      shortUrl: `${process.env.NEXT_PUBLIC_SERVER_URL}/f/${docId}`,
+    }).then((response) => {
+      setTimeout(() => {
+        router.push(`/file-review/${docId}`)
+      }, 1000)
     })
-
-    setFileDocId(docId)
   }
 
   return (

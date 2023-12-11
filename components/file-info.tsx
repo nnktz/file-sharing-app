@@ -25,7 +25,7 @@ export const FileInfo = ({ file }: { file: any }) => {
         <FileIcon size={200} className="text-primary" />
       )}
 
-      <h2 className="mt-4 w-full overflow-hidden text-ellipsis text-black">{file.filename}</h2>
+      <h2 className="mt-4 w-full overflow-hidden text-ellipsis text-black">{file.fileName}</h2>
       <h2 className="tex-[13px] text-gray-400">
         {fileType}/{file.fileSize}
       </h2>

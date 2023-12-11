@@ -1,30 +1,24 @@
 'use client'
 
 import Link from 'next/link'
+import toast from 'react-hot-toast'
 import { DocumentData, doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
 import { notFound } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ArrowLeftSquare } from 'lucide-react'
+import { useUser } from '@clerk/nextjs'
 
 import { app } from '@/config/firebase'
 
 import { FileInfo } from '@/components/file-info'
 import { FileShareForm } from '@/components/file-share-form'
-import toast from 'react-hot-toast'
 
 const FileReviewIdPage = ({ params }: { params: { fileId: string } }) => {
+  const { user } = useUser()
+
   const [file, setFile] = useState<DocumentData | null>(null)
 
   const db = getFirestore(app)
-
-  useEffect(() => {
-    fetchFileInfo()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  if (!params) {
-    return notFound()
-  }
 
   const fetchFileInfo = async () => {
     const docRef = doc(db, 'uploadedFile', params.fileId)
@@ -35,6 +29,19 @@ const FileReviewIdPage = ({ params }: { params: { fileId: string } }) => {
     } else {
       console.log('No doc found')
     }
+  }
+
+  useEffect(() => {
+    fetchFileInfo()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  if (!params) {
+    return notFound()
+  }
+
+  if (user === undefined || user === null) {
+    return null
   }
 
   const onPasswordSave = async (password: string) => {
@@ -59,6 +66,7 @@ const FileReviewIdPage = ({ params }: { params: { fileId: string } }) => {
         <div className="mt-5 grid grid-cols-1 md:grid-cols-2">
           <FileInfo file={file} />
           <FileShareForm
+            user={user}
             file={file}
             onPasswordSave={(password: string) => onPasswordSave(password)}
           />

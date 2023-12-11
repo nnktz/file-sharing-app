@@ -1,19 +1,49 @@
 'use client'
 
-import { Copy } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { useState } from 'react'
+import { Copy } from 'lucide-react'
+import type { UserResource } from '@clerk/types'
+
+import { sendEmail } from '@/utils/global-api'
 
 interface FileShareFormProps {
   file: any
+  user: UserResource
   onPasswordSave: (password: string) => void
 }
 
-export const FileShareForm = ({ file, onPasswordSave }: FileShareFormProps) => {
+export const FileShareForm = ({ file, onPasswordSave, user }: FileShareFormProps) => {
   const [isPasswordEnable, setIsPasswordEnable] = useState(file.password ? true : false)
   const [password, setPassword] = useState(file.password ? file.password : '')
   const [email, setEmail] = useState('')
   const [sending, setSending] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  const handleSendEmail = async () => {
+    const data = {
+      emailToSend: email,
+      userName: user.fullName,
+      fileName: file.fileName,
+      fileSize: file.fileSize,
+      fileType: file.fileType,
+      shortUrl: file.shortUrl,
+    }
+
+    setSending(true)
+
+    await sendEmail(data)
+      .then((response) => {
+        console.log(response)
+        toast.success('Sent email successfully')
+      })
+      .catch((error) => {
+        toast.error('Something went wrong')
+      })
+      .finally(() => {
+        setSending(false)
+      })
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -71,7 +101,7 @@ export const FileShareForm = ({ file, onPasswordSave }: FileShareFormProps) => {
 
       <div className="flex items-center">
         <div className="w-full rounded-md border p-2">
-          <form action="">
+          <form action={handleSendEmail}>
             <label htmlFor="" className="text-sm text-gray-500">
               Send File to Email
             </label>
@@ -86,6 +116,7 @@ export const FileShareForm = ({ file, onPasswordSave }: FileShareFormProps) => {
               />
             </div>
             <button
+              type="submit"
               className="w-full rounded-md bg-primary p-2 text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-gray-300"
               disabled={sending || email === ''}
             >
