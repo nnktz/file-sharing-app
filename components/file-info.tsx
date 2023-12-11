@@ -1,10 +1,11 @@
 'use client'
 
-import { FileIcon } from 'lucide-react'
 import Image from 'next/image'
+import { DocumentData } from 'firebase/firestore'
+import { FileIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-export const FileInfo = ({ file }: { file: any }) => {
+export const FileInfo = ({ file }: { file: DocumentData }) => {
   const [fileType, setFileType] = useState('')
 
   useEffect(() => {

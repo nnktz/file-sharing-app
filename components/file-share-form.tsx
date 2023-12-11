@@ -4,11 +4,12 @@ import toast from 'react-hot-toast'
 import { useState } from 'react'
 import { Copy } from 'lucide-react'
 import type { UserResource } from '@clerk/types'
+import { DocumentData } from 'firebase/firestore'
 
 import { sendEmail } from '@/utils/global-api'
 
 interface FileShareFormProps {
-  file: any
+  file: DocumentData
   user: UserResource
   onPasswordSave: (password: string) => void
 }
