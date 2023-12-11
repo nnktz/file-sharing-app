@@ -4,13 +4,15 @@ import toast from 'react-hot-toast'
 import { ChangeEvent, useState } from 'react'
 
 import { FileReview } from './file-review'
+import { ProgressBarComponent } from './progress-bar'
 
 interface UploadFormProps {
   uploading: boolean
+  progress: number
   uploadFile: (file: File) => void
 }
 
-export const UploadForm = ({ uploadFile, uploading }: UploadFormProps) => {
+export const UploadForm = ({ uploadFile, uploading, progress = 0 }: UploadFormProps) => {
   const [file, setFile] = useState<File | null>(null)
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -69,10 +71,12 @@ export const UploadForm = ({ uploadFile, uploading }: UploadFormProps) => {
 
       {file && <FileReview file={file} removeFile={() => setFile(null)} />}
 
+      {progress > 0 && <ProgressBarComponent progress={progress} />}
+
       <button
         onClick={handleUpload}
         disabled={!file || uploading}
-        className={`mt-5 w-[30%] rounded-full bg-primary p-2 text-white transition hover:opacity-75 disabled:cursor-not-allowed ${
+        className={`mt-5 w-[30%] select-none rounded-full bg-primary p-2 text-white transition hover:opacity-75 disabled:cursor-not-allowed ${
           !file && 'disabled:bg-gray-400'
         }`}
       >

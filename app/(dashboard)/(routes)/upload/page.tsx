@@ -10,6 +10,7 @@ import { UploadForm } from '@/components/upload-form'
 
 const UploadPage = () => {
   const [uploading, setUploading] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   const storage = getStorage(app)
 
@@ -28,6 +29,7 @@ const UploadPage = () => {
         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
         console.log('Upload is ' + progress + '% done')
+        setProgress(progress)
       },
       (error) => {
         // Handle unsuccessful uploads
@@ -53,7 +55,7 @@ const UploadPage = () => {
         <strong className="text-primary">Share</strong> it
       </h2>
 
-      <UploadForm uploadFile={uploadFile} uploading={uploading} />
+      <UploadForm uploadFile={uploadFile} uploading={uploading} progress={progress} />
     </div>
   )
 }
