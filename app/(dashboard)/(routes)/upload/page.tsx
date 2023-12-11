@@ -5,6 +5,7 @@ import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
 import { useState } from 'react'
 import { useUser } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
 
 import { app } from '@/config/firebase'
 import { generateRandomString } from '@/utils/generate-random-string'
@@ -13,9 +14,11 @@ import { UploadForm } from '@/components/upload-form'
 
 const UploadPage = () => {
   const { user } = useUser()
+  const router = useRouter()
 
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [fileDocId, setFileDocId] = useState('')
 
   const storage = getStorage(app)
   const db = getFirestore(app)
@@ -37,9 +40,9 @@ const UploadPage = () => {
       'state_changed',
       (snapshot) => {
         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        console.log('Upload is ' + progress + '% done')
-        setProgress(progress)
+        const progressTask = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        console.log('Upload is ' + progressTask + '% done')
+        setProgress(progressTask)
       },
       (error) => {
         // Handle unsuccessful uploads
@@ -52,6 +55,9 @@ const UploadPage = () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           onSave(file, downloadURL)
           console.log('File available at', downloadURL)
+          setTimeout(() => {
+            router.push(`/file-review/${fileDocId}`)
+          }, 1000)
         })
         toast.success('Uploaded file successfully')
         setUploading(false)
@@ -73,6 +79,8 @@ const UploadPage = () => {
       id: docId,
       shortUrl: `${process.env.NEXT_PUBLIC_SERVER_URL}/${docId}`,
     })
+
+    setFileDocId(docId)
   }
 
   return (
