@@ -2,17 +2,27 @@
 
 import toast from 'react-hot-toast'
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
+import { doc, getFirestore, setDoc } from 'firebase/firestore'
 import { useState } from 'react'
+import { useUser } from '@clerk/nextjs'
 
 import { app } from '@/config/firebase'
+import { generateRandomString } from '@/utils/generate-random-string'
 
 import { UploadForm } from '@/components/upload-form'
 
 const UploadPage = () => {
+  const { user } = useUser()
+
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
 
   const storage = getStorage(app)
+  const db = getFirestore(app)
+
+  if (user === undefined || user === null) {
+    return null
+  }
 
   const uploadFile = (file: File) => {
     setUploading(true)
@@ -40,12 +50,29 @@ const UploadPage = () => {
         // Handle successful uploads on complete
         // For instance, get the download URL: https://firebasestorage.googleapis.com/...
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          onSave(file, downloadURL)
           console.log('File available at', downloadURL)
         })
         toast.success('Uploaded file successfully')
         setUploading(false)
       },
     )
+  }
+
+  const onSave = async (file: File, fileUrl: string) => {
+    const docId = generateRandomString().toString()
+
+    await setDoc(doc(db, 'uploadedFile', docId), {
+      filename: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      fileUrl: fileUrl,
+      userEmail: user.primaryEmailAddress?.emailAddress,
+      userName: user.fullName,
+      password: '',
+      id: docId,
+      shortUrl: `${process.env.NEXT_PUBLIC_SERVER_URL}/${docId}`,
+    })
   }
 
   return (
