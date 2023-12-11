@@ -1,11 +1,11 @@
 import { FileIcon, X } from 'lucide-react'
 
-interface FileReview {
+interface FileReviewProps {
   file: File
   removeFile: () => void
 }
 
-export const FileReview = ({ file, removeFile }: FileReview) => {
+export const FileReview = ({ file, removeFile }: FileReviewProps) => {
   return (
     <div className="mt-5 flex items-center justify-between gap-2 rounded-md border border-blue-200 p-2 text-black">
       <div className="flex items-center p-2">

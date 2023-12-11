@@ -5,9 +5,13 @@ import { ChangeEvent, useState } from 'react'
 
 import { FileReview } from './file-review'
 
-export const UploadForm = () => {
+interface UploadFormProps {
+  uploading: boolean
+  uploadFile: (file: File) => void
+}
+
+export const UploadForm = ({ uploadFile, uploading }: UploadFormProps) => {
   const [file, setFile] = useState<File | null>(null)
-  const [uploading, setUploading] = useState(false)
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files
@@ -20,6 +24,12 @@ export const UploadForm = () => {
       }
 
       setFile(selectedFile)
+    }
+  }
+
+  const handleUpload = () => {
+    if (file) {
+      uploadFile(file)
     }
   }
 
@@ -60,6 +70,7 @@ export const UploadForm = () => {
       {file && <FileReview file={file} removeFile={() => setFile(null)} />}
 
       <button
+        onClick={handleUpload}
         disabled={!file || uploading}
         className={`mt-5 w-[30%] rounded-full bg-primary p-2 text-white transition hover:opacity-75 disabled:cursor-not-allowed ${
           !file && 'disabled:bg-gray-400'
